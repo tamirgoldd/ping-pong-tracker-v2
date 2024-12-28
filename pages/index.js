@@ -10,19 +10,86 @@ export default function Home() {
   const [score1, setScore1] = useState('');
   const [score2, setScore2] = useState('');
 
-  // Load data from localStorage on initial render
-  useEffect(() => {
-    const savedPlayers = localStorage.getItem('players');
-    const savedMatches = localStorage.getItem('matches');
-    if (savedPlayers) setPlayers(JSON.parse(savedPlayers));
-    if (savedMatches) setMatches(JSON.parse(savedMatches));
-  }, []);
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const response = await fetch('/api/data');
+      if (response.ok) {
+        const data = await response.json();
+        setPlayers(data.players || []);
+        setMatches(data.matches || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+  };
 
-  // Save data to localStorage whenever it changes
+  fetchData();
+}, []);
+
+
+useEffect(() => {
+  const saveData = async () => {
+    try {
+      const response = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ players, matches }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to save data');
+      }
+    } catch (error) {
+      console.error('Failed to save data:', error);
+    }
+  };
+
+  if (players.length > 0 || matches.length > 0) {
+    saveData();
+  }
+}, [players, matches]);
+
+
   useEffect(() => {
-    localStorage.setItem('players', JSON.stringify(players));
-    localStorage.setItem('matches', JSON.stringify(matches));
-  }, [players, matches]);
+  const fetchData = async () => {
+    try {
+      const response = await fetch('/api/data');
+      if (response.ok) {
+        const data = await response.json();
+        setPlayers(data.players || []);
+        setMatches(data.matches || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch data:', error);
+    }
+  };
+
+  fetchData();
+}, []);
+
+useEffect(() => {
+  const saveData = async () => {
+    try {
+      const response = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ players, matches }),
+      });
+
+      if (!response.ok) {
+        console.error('Failed to save data');
+      }
+    } catch (error) {
+      console.error('Failed to save data:', error);
+    }
+  };
+
+  if (players.length > 0 || matches.length > 0) {
+    saveData();
+  }
+}, [players, matches]);
+
 
   const addPlayer = () => {
     if (newPlayer.trim() && !players.some(p => p.name === newPlayer.trim())) {
