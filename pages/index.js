@@ -1,7 +1,5 @@
-'use client';
-
-import React, { useState } from 'react';
-import { Trophy, Trash2, History, Table } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Trophy, Trash2, History, Table, Users } from 'lucide-react';
 
 export default function Home() {
   const [players, setPlayers] = useState([]);
@@ -11,6 +9,20 @@ export default function Home() {
   const [player2, setPlayer2] = useState('');
   const [score1, setScore1] = useState('');
   const [score2, setScore2] = useState('');
+
+  // Load data from localStorage on initial render
+  useEffect(() => {
+    const savedPlayers = localStorage.getItem('players');
+    const savedMatches = localStorage.getItem('matches');
+    if (savedPlayers) setPlayers(JSON.parse(savedPlayers));
+    if (savedMatches) setMatches(JSON.parse(savedMatches));
+  }, []);
+
+  // Save data to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('players', JSON.stringify(players));
+    localStorage.setItem('matches', JSON.stringify(matches));
+  }, [players, matches]);
 
   const addPlayer = () => {
     if (newPlayer.trim() && !players.some(p => p.name === newPlayer.trim())) {
@@ -23,6 +35,12 @@ export default function Home() {
         pointsConceded: 0
       }]);
       setNewPlayer('');
+    }
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      addPlayer();
     }
   };
 
@@ -88,33 +106,36 @@ export default function Home() {
   };
 
   const sortedPlayers = [...players].sort((a, b) => b.winRate - a.winRate);
-
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 p-6">
+    <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-gray-100 p-6">
       <div className="max-w-6xl mx-auto space-y-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-purple-400 mb-2">Darrow Employees</h1>
-          <h2 className="text-2xl font-semibold bg-gradient-to-r from-purple-400 to-purple-600 inline-block text-transparent bg-clip-text">
+        {/* Header */}
+        <div className="text-center mb-16 pt-8">
+          <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-purple-600 mb-3">
+            Darrow Employees
+          </h1>
+          <h2 className="text-3xl font-semibold text-purple-300">
             Ping Pong Tracker
           </h2>
         </div>
 
         {/* Add Player Section */}
-        <div className="bg-gray-800 rounded-xl p-6 border border-purple-500/20">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-purple-400">
-            <Table className="w-5 h-5" /> Players
+        <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/10 shadow-lg shadow-purple-500/5">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-purple-400">
+            <Users className="w-6 h-6" /> Players
           </h2>
-          <div className="flex gap-4 mb-6">
+          <div className="flex gap-4 mb-8">
             <input
               type="text"
               placeholder="Enter player name"
               value={newPlayer}
               onChange={(e) => setNewPlayer(e.target.value)}
-              className="flex-1 max-w-xs px-4 py-2 rounded-lg bg-gray-700 border border-purple-500/30 text-gray-100"
+              onKeyPress={handleKeyPress}
+              className="flex-1 max-w-xs px-4 py-3 rounded-lg bg-black/50 border border-purple-500/20 text-gray-100 focus:outline-none focus:border-purple-500/50 transition-colors"
             />
             <button
               onClick={addPlayer}
-              className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200 shadow-lg shadow-purple-600/20"
             >
               Add Player
             </button>
@@ -123,11 +144,12 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {players.map(player => (
               <div key={player.name} 
-                className="flex items-center justify-between p-4 rounded-lg bg-gray-700 border border-purple-500/30">
-                <span className="font-medium">{player.name}</span>
+                className="flex items-center justify-between p-4 rounded-lg bg-black/30 border border-purple-500/20 hover:border-purple-500/40 transition-all duration-200 group"
+              >
+                <span className="font-medium text-purple-100">{player.name}</span>
                 <button
                   onClick={() => deletePlayer(player.name)}
-                  className="p-2 text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-full"
+                  className="p-2 text-red-400/70 hover:text-red-400 hover:bg-red-400/10 rounded-full transition-colors group-hover:scale-105"
                   title="Delete player"
                 >
                   <Trash2 className="w-5 h-5" />
@@ -138,17 +160,17 @@ export default function Home() {
         </div>
 
         {/* Record Match Section */}
-        <div className="bg-gray-800 rounded-xl p-6 border border-purple-500/20">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-purple-400">
-            <History className="w-5 h-5" /> Record Match
+        <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/10 shadow-lg shadow-purple-500/5">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-purple-400">
+            <History className="w-6 h-6" /> Record Match
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-300">Player 1</label>
+              <label className="block text-sm font-medium text-purple-300">Player 1</label>
               <select
                 value={player1}
                 onChange={(e) => setPlayer1(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-purple-500/30 text-gray-100"
+                className="w-full px-4 py-3 rounded-lg bg-black/50 border border-purple-500/20 text-gray-100 focus:outline-none focus:border-purple-500/50 transition-colors"
               >
                 <option value="">Select Player 1</option>
                 {players.map(player => (
@@ -158,23 +180,23 @@ export default function Home() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-300">Score</label>
+              <label className="block text-sm font-medium text-purple-300">Score</label>
               <input
                 type="number"
                 min="0"
                 value={score1}
                 onChange={(e) => setScore1(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-purple-500/30 text-gray-100"
+                className="w-full px-4 py-3 rounded-lg bg-black/50 border border-purple-500/20 text-gray-100 focus:outline-none focus:border-purple-500/50 transition-colors"
                 placeholder="Player 1 Score"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-300">Player 2</label>
+              <label className="block text-sm font-medium text-purple-300">Player 2</label>
               <select
                 value={player2}
                 onChange={(e) => setPlayer2(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-purple-500/30 text-gray-100"
+                className="w-full px-4 py-3 rounded-lg bg-black/50 border border-purple-500/20 text-gray-100 focus:outline-none focus:border-purple-500/50 transition-colors"
               >
                 <option value="">Select Player 2</option>
                 {players.map(player => (
@@ -184,59 +206,59 @@ export default function Home() {
             </div>
 
             <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-300">Score</label>
+              <label className="block text-sm font-medium text-purple-300">Score</label>
               <input
                 type="number"
                 min="0"
                 value={score2}
                 onChange={(e) => setScore2(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg bg-gray-700 border border-purple-500/30 text-gray-100"
+                className="w-full px-4 py-3 rounded-lg bg-black/50 border border-purple-500/20 text-gray-100 focus:outline-none focus:border-purple-500/50 transition-colors"
                 placeholder="Player 2 Score"
               />
             </div>
           </div>
           <button
             onClick={recordMatch}
-            className="mt-6 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+            className="mt-8 px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-200 shadow-lg shadow-purple-600/20"
           >
             Record Match
           </button>
         </div>
 
         {/* Leaderboard Section */}
-        <div className="bg-gray-800 rounded-xl p-6 border border-purple-500/20">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-purple-400">
-            <Trophy className="w-5 h-5" /> Leaderboard
+        <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/10 shadow-lg shadow-purple-500/5">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-purple-400">
+            <Trophy className="w-6 h-6" /> Leaderboard
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-purple-500/30">
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-purple-300">Rank</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-purple-300">Player</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-purple-300">Wins</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-purple-300">Losses</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-purple-300">Win Rate</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-purple-300">Points Scored</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-purple-300">Points Conceded</th>
+                <tr className="border-b border-purple-500/20">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-300">Rank</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-300">Player</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-300">Wins</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-300">Losses</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-300">Win Rate</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-300">Points Scored</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-300">Points Conceded</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-purple-500/20">
+              <tbody className="divide-y divide-purple-500/10">
                 {sortedPlayers.map((player, index) => (
-                  <tr key={player.name} className="hover:bg-purple-500/10">
+                  <tr key={player.name} className="hover:bg-purple-500/5 transition-colors">
                     <td className="px-6 py-4 text-sm">
                       <span className="font-semibold text-purple-400">#{index + 1}</span>
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium">{player.name}</td>
+                    <td className="px-6 py-4 text-sm font-medium text-purple-100">{player.name}</td>
                     <td className="px-6 py-4 text-sm text-green-400">{player.wins}</td>
                     <td className="px-6 py-4 text-sm text-red-400">{player.losses}</td>
                     <td className="px-6 py-4 text-sm">
-                      <span className="px-2 py-1 rounded bg-purple-500/20 text-purple-300">
+                      <span className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-300">
                         {player.winRate}%
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm">{player.pointsScored}</td>
-                    <td className="px-6 py-4 text-sm">{player.pointsConceded}</td>
+                    <td className="px-6 py-4 text-sm text-purple-200">{player.pointsScored}</td>
+                    <td className="px-6 py-4 text-sm text-purple-200">{player.pointsConceded}</td>
                   </tr>
                 ))}
               </tbody>
@@ -245,27 +267,27 @@ export default function Home() {
         </div>
 
         {/* Match History */}
-        <div className="bg-gray-800 rounded-xl p-6 border border-purple-500/20">
-          <h2 className="text-xl font-bold mb-4 flex items-center gap-2 text-purple-400">
-            <History className="w-5 h-5" /> Recent Matches
+        <div className="bg-black/40 backdrop-blur-sm rounded-2xl p-8 border border-purple-500/10 shadow-lg shadow-purple-500/5">
+          <h2 className="text-2xl font-bold mb-6 flex items-center gap-3 text-purple-400">
+            <History className="w-6 h-6" /> Recent Matches
           </h2>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-purple-500/30">
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-purple-300">Date</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-purple-300">Players</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-purple-300">Score</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-purple-300">Winner</th>
+                <tr className="border-b border-purple-500/20">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-300">Date</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-300">Players</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-300">Score</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-300">Winner</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-purple-500/20">
+              <tbody className="divide-y divide-purple-500/10">
                 {matches.map((match) => (
-                  <tr key={match.id} className="hover:bg-purple-500/10">
+                  <tr key={match.id} className="hover:bg-purple-500/5 transition-colors">
                     <td className="px-6 py-4 text-sm text-gray-400">
                       {new Date(match.date).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 text-sm">
+                    <td className="px-6 py-4 text-sm text-purple-100">
                       {match.player1} vs {match.player2}
                     </td>
                     <td className="px-6 py-4 text-sm font-medium">
@@ -274,7 +296,7 @@ export default function Home() {
                       <span className="text-purple-400">{match.score2}</span>
                     </td>
                     <td className="px-6 py-4 text-sm">
-                      <span className="px-2 py-1 rounded bg-purple-500/20 text-purple-300">
+                      <span className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-300">
                         {match.winner}
                       </span>
                     </td>
