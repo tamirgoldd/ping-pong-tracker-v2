@@ -1,3 +1,4 @@
+// PART 1 START - Imports and State Setup
 import React, { useState, useEffect } from 'react';
 import { Trophy, Trash2, History, Table, Users } from 'lucide-react';
 
@@ -38,7 +39,9 @@ export default function Home() {
       }).catch(error => console.error('Error saving data:', error));
     }
   }, [players, matches, loading]);
+// PART 1 END
 
+// PART 2 START - Functions
   const addPlayer = () => {
     if (newPlayer.trim() && !players.some(p => p.name === newPlayer.trim())) {
       setPlayers([...players, {
@@ -119,6 +122,7 @@ export default function Home() {
       setScore2('');
     }
   };
+
   const sortedPlayers = [...players].sort((a, b) => b.winRate - a.winRate);
 
   if (loading) {
@@ -128,7 +132,9 @@ export default function Home() {
       </div>
     );
   }
+  // PART 2 END
 
+// PART 3 START - Return JSX
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-gray-100 p-6">
       <div className="max-w-6xl mx-auto space-y-8">
@@ -333,3 +339,4 @@ export default function Home() {
     </div>
   );
 }
+// PART 3 END - File Complete
