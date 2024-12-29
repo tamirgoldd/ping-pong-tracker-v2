@@ -11,7 +11,7 @@ export default function Home() {
   const [score2, setScore2] = useState('');
   const [loading, setLoading] = useState(true);
 
-  // Load data from Redis on initial render
+  // Load data
   useEffect(() => {
     fetch('/api/data')
       .then(res => res.json())
@@ -26,7 +26,7 @@ export default function Home() {
       });
   }, []);
 
-  // Save data to Redis whenever it changes
+  // Save data
   useEffect(() => {
     if (!loading && (players.length > 0 || matches.length > 0)) {
       fetch('/api/data', {
@@ -119,7 +119,6 @@ export default function Home() {
       setScore2('');
     }
   };
-
   const sortedPlayers = [...players].sort((a, b) => b.winRate - a.winRate);
 
   if (loading) {
@@ -130,7 +129,6 @@ export default function Home() {
     );
   }
 
-  // Rest of your JSX stays exactly the same
   return (
     <div className="min-h-screen bg-gradient-to-b from-black to-gray-900 text-gray-100 p-6">
       <div className="max-w-6xl mx-auto space-y-8">
@@ -299,4 +297,39 @@ export default function Home() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border
+                <tr className="border-b border-purple-500/20">
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-300">Date</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-300">Players</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-300">Score</th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-purple-300">Winner</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-purple-500/10">
+                {matches.map((match) => (
+                  <tr key={match.id} className="hover:bg-purple-500/5 transition-colors">
+                    <td className="px-6 py-4 text-sm text-gray-400">
+                      {new Date(match.date).toLocaleDateString()}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-purple-100">
+                      {match.player1} vs {match.player2}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-medium">
+                      <span className="text-purple-400">{match.score1}</span>
+                      <span className="mx-2">-</span>
+                      <span className="text-purple-400">{match.score2}</span>
+                    </td>
+                    <td className="px-6 py-4 text-sm">
+                      <span className="px-3 py-1 rounded-full bg-purple-500/10 text-purple-300">
+                        {match.winner}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
